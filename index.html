@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Talks Event</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-container input {
+            width: 80%;
+            max-width: 400px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .schedule-item {
+            background-color: #e9ecef;
+            border-left: 5px solid #007bff;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .schedule-item.break {
+            background-color: #ffeeba;
+            border-left-color: #ffc107;
+        }
+        .schedule-item.transition {
+            background-color: #d1ecf1;
+            border-left-color: #17a2b8;
+            font-style: italic;
+            color: #6c757d;
+        }
+        .time {
+            font-weight: bold;
+            margin-right: 15px;
+            white-space: nowrap;
+            color: #0056b3;
+        }
+        .details {
+            flex-grow: 1;
+        }
+        .details h2 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+        .details p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .details .speakers {
+            font-style: italic;
+            color: #666;
+        }
+        .details .category {
+            background-color: #007bff;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-right: 5px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Technical Talks Event Schedule</h1>
+
+        <div class="search-container">
+            <input type="text" id="categorySearch" placeholder="Search by category..." onkeyup="filterTalks()">
+        </div>
+
+        <div id="schedule"></div>
+    </div>
+
+    <script>
+        const scheduleData = [{"type":"talk","title":"Introduction to Node.js","speakers":["Alice Smith"],"category":["Backend","JavaScript"],"duration":60,"description":"A beginner-friendly introduction to Node.js, covering its core concepts and asynchronous nature.","startTime":"10:00 AM","endTime":"11:00 AM"},{"type":"transition","duration":10,"startTime":"11:00 AM","endTime":"11:10 AM"},{"type":"talk","title":"Frontend with React Hooks","speakers":["Bob Johnson"],"category":["Frontend","React","JavaScript"],"duration":60,"description":"Dive deep into React Hooks for building efficient and reusable UI components.","startTime":"11:10 AM","endTime":"12:10 PM"},{"type":"transition","duration":10,"startTime":"12:10 PM","endTime":"12:20 PM"},{"type":"talk","title":"CSS Grid and Flexbox Masterclass","speakers":["Charlie Brown"],"category":["Frontend","CSS"],"duration":60,"description":"Master the art of modern CSS layouts with Grid and Flexbox for responsive designs.","startTime":"12:20 PM","endTime":"01:20 PM"},{"type":"break","title":"Lunch Break","duration":60,"startTime":"01:20 PM","endTime":"02:20 PM"},{"type":"transition","duration":10,"startTime":"02:20 PM","endTime":"02:30 PM"},{"type":"talk","title":"Database Design for Scalability","speakers":["Diana Prince","Clark Kent"],"category":["Database","Backend"],"duration":60,"description":"Learn best practices for designing scalable database schemas for various applications.","startTime":"02:30 PM","endTime":"03:30 PM"},{"type":"transition","duration":10,"startTime":"03:30 PM","endTime":"03:40 PM"},{"type":"talk","title":"API Security Fundamentals","speakers":["Eve Adams"],"category":["Security","Backend"],"duration":60,"description":"Understand common API security vulnerabilities and how to mitigate them effectively.","startTime":"03:40 PM","endTime":"04:40 PM"},{"type":"transition","duration":10,"startTime":"04:40 PM","endTime":"04:50 PM"},{"type":"talk","title":"Deployment Strategies with Docker","speakers":["Frank White"],"category":["DevOps","Containers"],"duration":60,"description":"Explore different Docker deployment strategies for seamless application delivery.","startTime":"04:50 PM","endTime":"05:50 PM"}];
+
+        function renderSchedule(data) {
+            const scheduleDiv = document.getElementById('schedule');
+            scheduleDiv.innerHTML = ''; // Clear previous content
+
+            data.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('schedule-item');
+                if (item.type === 'break') {
+                    itemDiv.classList.add('break');
+                } else if (item.type === 'transition') {
+                    itemDiv.classList.add('transition');
+                } else {
+                    // Add categories as data attributes for filtering
+                    itemDiv.dataset.category = item.category.map(c => c.toLowerCase()).join(' ');
+                }
+
+                const timeSpan = document.createElement('span');
+                timeSpan.classList.add('time');
+                timeSpan.textContent = `${item.startTime} - ${item.endTime}`;
+                itemDiv.appendChild(timeSpan);
+
+                const detailsDiv = document.createElement('div');
+                detailsDiv.classList.add('details');
+
+                if (item.type === 'talk') {
+                    const title = document.createElement('h2');
+                    title.textContent = item.title;
+                    detailsDiv.appendChild(title);
+
+                    const speakers = document.createElement('p');
+                    speakers.classList.add('speakers');
+                    speakers.textContent = `Speaker(s): ${item.speakers.join(', ')}`;
+                    detailsDiv.appendChild(speakers);
+
+                    const description = document.createElement('p');
+                    description.textContent = item.description;
+                    detailsDiv.appendChild(description);
+
+                    const categoryContainer = document.createElement('p');
+                    item.category.forEach(cat => {
+                        const categorySpan = document.createElement('span');
+                        categorySpan.classList.add('category');
+                        categorySpan.textContent = cat;
+                        categoryContainer.appendChild(categorySpan);
+                    });
+                    detailsDiv.appendChild(categoryContainer);
+
+                } else if (item.type === 'break') {
+                    const title = document.createElement('h2');
+                    title.textContent = item.title;
+                    detailsDiv.appendChild(title);
+                } else if (item.type === 'transition') {
+                    const title = document.createElement('h2');
+                    title.textContent = `Transition (${item.duration} minutes)`;
+                    detailsDiv.appendChild(title);
+                }
+                itemDiv.appendChild(detailsDiv);
+                scheduleDiv.appendChild(itemDiv);
+            });
+        }
+
+        function filterTalks() {
+            const searchTerm = document.getElementById('categorySearch').value.toLowerCase();
+            const filteredSchedule = scheduleData.filter(item => {
+                if (item.type === 'talk') {
+                    return item.category.some(cat => cat.toLowerCase().includes(searchTerm));
+                }
+                // Always show breaks and transitions, regardless of search term
+                return true;
+            });
+            renderSchedule(filteredSchedule);
+        }
+
+        // Initial render
+        renderSchedule(scheduleData);
+    </script>
+</body>
+</html>
